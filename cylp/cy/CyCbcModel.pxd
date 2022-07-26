@@ -4,6 +4,7 @@ from cylp.cy.CyCgl cimport CyCglCutGenerator, CppCglCutGenerator
 from cylp.cy.CyCbcNode cimport CyCbcNode, CppICbcNode
 from cylp.cy.CyOsiSolverInterface cimport CppOsiSolverInterface, CyOsiSolverInterface
 from cpython cimport Py_INCREF, Py_DECREF
+from libcpp.vector cimport vector
 
 
 cdef extern from "CbcCompareUser.hpp":
@@ -78,6 +79,11 @@ cdef extern from "ICbcModel.hpp":
 
         bint setMaximumSolutions(int value)
         int getMaximumSolutions()
+
+        void persistNodes(bint value)
+        bint persistNodes()
+        
+        vector[CppICbcNode*] nodeList()
         
         CppOsiSolverInterface* solver()
 
