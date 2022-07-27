@@ -20,6 +20,8 @@ cdef extern from "CbcCompareUser.hpp":
     bint equalityTest(CppICbcNode* x, CppICbcNode* y)
 
 
+# whats available to c++ code within cython (accessible in .pyx)
+# makes a subclass of CbcModel available
 cdef extern from "ICbcModel.hpp":
     cdef cppclass CppICbcModel "ICbcModel":
         PyObject* getPrimalVariableSolution()
@@ -83,10 +85,12 @@ cdef extern from "ICbcModel.hpp":
         void persistNodes(bint value)
         bint persistNodes()
         
-        vector[CppICbcNode*] nodeList()
+        # this makes available nodeList from c++ code in CBC
+        vector[CppICbcNode*] getNodeList()
         
         CppOsiSolverInterface* solver()
 
+# whats available to python
 cdef class CyCbcModel:
     cdef CppICbcModel* CppSelf
     cdef object cyLPModel

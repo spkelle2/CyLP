@@ -1,4 +1,5 @@
 #include "ICbcModel.hpp"
+#include "ICbcNode.hpp"
 
 #include "CbcCompareUser.hpp"
 #include "CbcSolver.hpp"
@@ -40,4 +41,13 @@ int ICbcModel::cbcMain(){
         //CbcMain0(*this, solverData);
 	//this->setLogLevel(logLevel);
         //return CbcMain1(3, argv, *this, NULL, solverData);
+}
+
+std::vector<ICbcNode*> ICbcModel::getNodeList() {
+    std::vector<ICbcNode*> recastNodeList;
+    for (unsigned int i = 0; i < this->nodeList().size(); i++) {
+        ICbcNode* node = (ICbcNode*)(this->nodeList()[i]);
+        recastNodeList.push_back(node);
+    }
+    return recastNodeList;
 }

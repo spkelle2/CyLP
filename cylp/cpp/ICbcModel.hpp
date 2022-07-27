@@ -36,6 +36,7 @@ public:
                            runTest_t runTest, runNewSolution_t runNewSolution,
                            runEvery1000Nodes_t runEvery1000Nodes);
     int cbcMain();
+    std::vector<ICbcNode*> getNodeList();
 };
 
 
