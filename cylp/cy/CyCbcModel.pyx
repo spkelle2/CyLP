@@ -300,6 +300,10 @@ cdef class CyCbcModel:
 
     property nodeList:
         def __get__(self):
-            return self.CppSelf.getNodeList()
+            node_list = []
+            cppNodeList = self.CppSelf.getNodeList()
+            for i in range(cppNodeList.size()):
+                node_list.append(CyCbcNode().setCppSelf(cppNodeList[i]))
+            return node_list
 
     #TODO: add access to solver: getLower, getUpper,...
