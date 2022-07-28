@@ -4,6 +4,7 @@ from cylp.cy.CyCgl cimport CyCglCutGenerator, CppCglCutGenerator
 from cylp.cy.CyCbcNode cimport CyCbcNode, CppICbcNode
 from cylp.cy.CyOsiSolverInterface cimport CppOsiSolverInterface, CyOsiSolverInterface
 from cpython cimport Py_INCREF, Py_DECREF
+from libcpp.map cimport map
 from libcpp.vector cimport vector
 
 
@@ -23,6 +24,7 @@ cdef extern from "CbcCompareUser.hpp":
 # whats available to c++ code within cython (accessible in .pyx)
 # makes a subclass of CbcModel available
 cdef extern from "ICbcModel.hpp":
+    ctypedef CppICbcNode * CppICbcNode_ptr
     cdef cppclass CppICbcModel "ICbcModel":
         PyObject* getPrimalVariableSolution()
 
@@ -87,6 +89,7 @@ cdef extern from "ICbcModel.hpp":
         
         # this makes available nodeList from c++ code in CBC
         vector[CppICbcNode*] getNodeList()
+        map[CppICbcNode_ptr, CppOsiSolverInterface*] getNodeMap()
         
         CppOsiSolverInterface* solver()
 

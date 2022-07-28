@@ -306,4 +306,13 @@ cdef class CyCbcModel:
                 node_list.append(CyCbcNode().setCppSelf(cppNodeList[i]))
             return node_list
 
+    # property nodeMap:
+    #     def __get__(self):
+    #         node_map = {}
+    #         cppNodeMap = self.CppSelf.getNodeMap()
+    #         for i in range(cppNodeMap.size()):
+    #             node_map[CyCbcNode().setCppSelf(cppNodeMap[i].first)] = \
+    #                 CyClpSimplex().setCppSelf(cppNodeMap[i].second))
+    #         return node_map
+
     #TODO: add access to solver: getLower, getUpper,...

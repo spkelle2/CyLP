@@ -3,6 +3,8 @@
 
 #include "CbcCompareUser.hpp"
 #include "CbcSolver.hpp"
+#include "CbcNodeInfo.hpp"
+#include "CoinWarmStartBasis.hpp"
 
 PyObject* ICbcModel::getPrimalVariableSolution(){
 
@@ -50,4 +52,19 @@ std::vector<ICbcNode*> ICbcModel::getNodeList() {
         recastNodeList.push_back(node);
     }
     return recastNodeList;
+}
+
+std::map<ICbcNode*, OsiSolverInterface*> ICbcModel::getNodeMap() {
+    std::map<ICbcNode*, OsiSolverInterface*> nodeMap;
+    this->saveReferenceSolver();
+    for (unsigned int i = 0; i < this->nodeList().size(); i++) {
+        ICbcNode* node = (ICbcNode*)(this->nodeList()[i]);
+        CbcNodeInfo* info = node->nodeInfo();
+        CoinWarmStartBasis* workingBasis = &this->workingBasis();
+        int numberCuts = info->numberCuts();
+        info->applyToModel(this, workingBasis, info->cuts(), numberCuts);
+        nodeMap[node] = this->solver();
+    }
+    this->resetToReferenceSolver();
+    return nodeMap;
 }

@@ -37,6 +37,7 @@ public:
                            runEvery1000Nodes_t runEvery1000Nodes);
     int cbcMain();
     std::vector<ICbcNode*> getNodeList();
+    std::map<ICbcNode*, OsiSolverInterface*> getNodeMap();
 };
 
 
