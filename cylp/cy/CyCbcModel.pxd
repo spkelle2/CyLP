@@ -2,6 +2,7 @@ cimport numpy as np
 from cpython.ref cimport PyObject
 from cylp.cy.CyCgl cimport CyCglCutGenerator, CppCglCutGenerator
 from cylp.cy.CyCbcNode cimport CyCbcNode, CppICbcNode
+from cylp.cy.CyClpSimplex cimport CyClpSimplex, CppIClpSimplex
 from cylp.cy.CyOsiSolverInterface cimport CppOsiSolverInterface, CyOsiSolverInterface
 from cpython cimport Py_INCREF, Py_DECREF
 from libcpp.map cimport map
@@ -24,7 +25,7 @@ cdef extern from "CbcCompareUser.hpp":
 # whats available to c++ code within cython (accessible in .pyx)
 # makes a subclass of CbcModel available
 cdef extern from "ICbcModel.hpp":
-    ctypedef CppICbcNode * CppICbcNode_ptr
+    # ctypedef CppICbcNode * CppICbcNode_ptr
     cdef cppclass CppICbcModel "ICbcModel":
         PyObject* getPrimalVariableSolution()
 
@@ -88,8 +89,9 @@ cdef extern from "ICbcModel.hpp":
         bint persistNodes()
         
         # this makes available nodeList from c++ code in CBC
-        vector[CppICbcNode*] getNodeList()
-        map[CppICbcNode_ptr, CppOsiSolverInterface*] getNodeMap()
+        # todo: test these get matched in the right order
+        vector[CppICbcNode*] getCbcNodeList()
+        vector[CppIClpSimplex*] getClpSimplexList()
         
         CppOsiSolverInterface* solver()
 

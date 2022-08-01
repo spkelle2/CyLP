@@ -8,6 +8,8 @@ except ImportError:  # Python 3 does not have izip, use zip
 from cylp.py.mip import NodeCompareBase
 from cylp.py.modeling.CyLPModel import CyLPSolution
 from cylp.cy.CyCutGeneratorPythonBase cimport CyCutGeneratorPythonBase
+from cylp.cy.CyOsiSolverInterface import CyOsiSolverInterface
+from cython.operator cimport dereference, postincrement
 from libcpp cimport bool
 
 
@@ -298,21 +300,15 @@ cdef class CyCbcModel:
         def __set__(self, value):
             self.CppSelf.persistNodes(value)
 
-    property nodeList:
+    property nodeMap:
         def __get__(self):
-            node_list = []
-            cppNodeList = self.CppSelf.getNodeList()
+            node_map = {}
+            cppNodeList = self.CppSelf.getCbcNodeList()
+            cppSimplexList = self.CppSelf.getClpSimplexList()
             for i in range(cppNodeList.size()):
-                node_list.append(CyCbcNode().setCppSelf(cppNodeList[i]))
-            return node_list
-
-    # property nodeMap:
-    #     def __get__(self):
-    #         node_map = {}
-    #         cppNodeMap = self.CppSelf.getNodeMap()
-    #         for i in range(cppNodeMap.size()):
-    #             node_map[CyCbcNode().setCppSelf(cppNodeMap[i].first)] = \
-    #                 CyClpSimplex().setCppSelf(cppNodeMap[i].second))
-    #         return node_map
+                lp = CyClpSimplex()
+                lp.setCppSelf(cppSimplexList[i])
+                node_map[CyCbcNode().setCppSelf(cppNodeList[i])] = lp
+            return node_map
 
     #TODO: add access to solver: getLower, getUpper,...

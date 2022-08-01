@@ -45,26 +45,20 @@ int ICbcModel::cbcMain(){
         //return CbcMain1(3, argv, *this, NULL, solverData);
 }
 
-std::vector<ICbcNode*> ICbcModel::getNodeList() {
+std::vector<ICbcNode*> ICbcModel::getCbcNodeList() {
     std::vector<ICbcNode*> recastNodeList;
-    for (unsigned int i = 0; i < this->nodeList().size(); i++) {
-        ICbcNode* node = (ICbcNode*)(this->nodeList()[i]);
+    for (unsigned int i = 0; i < this->getNodeMap().size(); i++) {
+        ICbcNode* node = (ICbcNode*)(this->getNodeMap()[i].first);
         recastNodeList.push_back(node);
     }
     return recastNodeList;
 }
 
-std::map<ICbcNode*, OsiSolverInterface*> ICbcModel::getNodeMap() {
-    std::map<ICbcNode*, OsiSolverInterface*> nodeMap;
-    this->saveReferenceSolver();
-    for (unsigned int i = 0; i < this->nodeList().size(); i++) {
-        ICbcNode* node = (ICbcNode*)(this->nodeList()[i]);
-        CbcNodeInfo* info = node->nodeInfo();
-        CoinWarmStartBasis* workingBasis = &this->workingBasis();
-        int numberCuts = info->numberCuts();
-        info->applyToModel(this, workingBasis, info->cuts(), numberCuts);
-        nodeMap[node] = this->solver();
+std::vector<IClpSimplex*> ICbcModel::getClpSimplexList() {
+    std::vector<IClpSimplex*> recastSimplexList;
+    for (unsigned int i = 0; i < this->getNodeMap().size(); i++) {
+        IClpSimplex* lp = (IClpSimplex*)(this->getNodeMap()[i].second);
+        recastSimplexList.push_back(lp);
     }
-    this->resetToReferenceSolver();
-    return nodeMap;
+    return recastSimplexList;
 }
