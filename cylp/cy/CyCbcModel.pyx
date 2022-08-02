@@ -315,4 +315,39 @@ cdef class CyCbcModel:
                 node_map[node] = lp
             return node_map
 
+    property lpList:
+        def __get__(self):
+            lp_list = []
+            cppOsiSolverInterfaceList = self.CppSelf.getOsiSolverInterfaceList()
+            cdef CyOsiSolverInterface osi = CyOsiSolverInterface()
+
+            for i in range(cppOsiSolverInterfaceList.size()):
+                osi.setCppSelf(cppOsiSolverInterfaceList[i])
+                lp = osi.clpModel
+                lp_list.append(lp)
+            return lp_list
+
+    property osiList:
+        def __get__(self):
+            osi_list = []
+            cdef vector[CppOsiSolverInterface*] cppOsiSolverInterfaceList = self.CppSelf.getOsiSolverInterfaceList()
+            cdef CyOsiSolverInterface osi = CyOsiSolverInterface()
+
+            for i in range(cppOsiSolverInterfaceList.size()):
+                osi.setCppSelf(cppOsiSolverInterfaceList[i])
+                osi_list.append(osi)
+            return osi_list
+
+    property osiListLength:
+        def __get__(self):
+            cppOsiSolverInterfaceList = self.CppSelf.getOsiSolverInterfaceList()
+            return cppOsiSolverInterfaceList.size()
+
+    property singleOsi:
+        def __get__(self):
+            cdef vector[CppOsiSolverInterface *] cppOsiSolverInterfaceList = self.CppSelf.getOsiSolverInterfaceList()
+            cdef CyOsiSolverInterface osi = CyOsiSolverInterface()
+            osi.setCppSelf(cppOsiSolverInterfaceList[0])
+            return osi
+
     #TODO: add access to solver: getLower, getUpper,...

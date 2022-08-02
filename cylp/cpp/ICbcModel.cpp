@@ -48,16 +48,17 @@ int ICbcModel::cbcMain(){
 std::vector<ICbcNode*> ICbcModel::getCbcNodeList() {
     std::vector<ICbcNode*> recastNodeList;
     for (unsigned int i = 0; i < this->getNodeMap().size(); i++) {
-        ICbcNode* node = (ICbcNode*)(this->getNodeMap()[i].first);
+        ICbcNode* node = dynamic_cast<ICbcNode*>(this->getNodeMap()[i].first);
         recastNodeList.push_back(node);
     }
     return recastNodeList;
 }
 
+//check if this works
 std::vector<OsiSolverInterface*> ICbcModel::getOsiSolverInterfaceList() {
     std::vector<OsiSolverInterface*> recastOsiSolverInterfaceList;
     for (unsigned int i = 0; i < this->getNodeMap().size(); i++) {
-        OsiSolverInterface* lp = (OsiSolverInterface*)(this->getNodeMap()[i].second);
+        OsiSolverInterface* lp = dynamic_cast<OsiSolverInterface*>(this->getNodeMap()[i].second);
         recastOsiSolverInterfaceList.push_back(lp);
     }
     return recastOsiSolverInterfaceList;
