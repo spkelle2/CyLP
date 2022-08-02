@@ -91,7 +91,7 @@ cdef extern from "ICbcModel.hpp":
         # this makes available nodeList from c++ code in CBC
         # todo: test these get matched in the right order
         vector[CppICbcNode*] getCbcNodeList()
-        vector[CppIClpSimplex*] getClpSimplexList()
+        vector[CppOsiSolverInterface*] getOsiSolverInterfaceList()
         
         CppOsiSolverInterface* solver()
 

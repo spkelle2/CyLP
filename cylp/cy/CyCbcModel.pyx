@@ -304,11 +304,15 @@ cdef class CyCbcModel:
         def __get__(self):
             node_map = {}
             cppNodeList = self.CppSelf.getCbcNodeList()
-            cppSimplexList = self.CppSelf.getClpSimplexList()
+            cppOsiSolverInterfaceList = self.CppSelf.getOsiSolverInterfaceList()
+            cdef CyOsiSolverInterface osi = CyOsiSolverInterface()
+            cdef CyCbcNode node = CyCbcNode()
+
             for i in range(cppNodeList.size()):
-                lp = CyClpSimplex()
-                lp.setCppSelf(cppSimplexList[i])
-                node_map[CyCbcNode().setCppSelf(cppNodeList[i])] = lp
+                osi.setCppSelf(cppOsiSolverInterfaceList[i])
+                lp = osi.clpModel
+                node.setCppSelf(cppNodeList[i])
+                node_map[node] = lp
             return node_map
 
     #TODO: add access to solver: getLower, getUpper,...

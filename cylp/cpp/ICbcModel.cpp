@@ -54,11 +54,11 @@ std::vector<ICbcNode*> ICbcModel::getCbcNodeList() {
     return recastNodeList;
 }
 
-std::vector<IClpSimplex*> ICbcModel::getClpSimplexList() {
-    std::vector<IClpSimplex*> recastSimplexList;
+std::vector<OsiSolverInterface*> ICbcModel::getOsiSolverInterfaceList() {
+    std::vector<OsiSolverInterface*> recastOsiSolverInterfaceList;
     for (unsigned int i = 0; i < this->getNodeMap().size(); i++) {
-        IClpSimplex* lp = (IClpSimplex*)(this->getNodeMap()[i].second);
-        recastSimplexList.push_back(lp);
+        OsiSolverInterface* lp = (OsiSolverInterface*)(this->getNodeMap()[i].second);
+        recastOsiSolverInterfaceList.push_back(lp);
     }
-    return recastSimplexList;
+    return recastOsiSolverInterfaceList;
 }

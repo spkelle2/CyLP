@@ -17,7 +17,7 @@
 //#include "CbcSolver.hpp"
 //#include "CbcCompareUser.hpp"
 
-class IClpSimplex;
+
 
 class ICbcModel;
 typedef int (*runTest_t)(void *instance, ICbcNode * x, ICbcNode * y);
@@ -39,7 +39,7 @@ public:
                            runEvery1000Nodes_t runEvery1000Nodes);
     int cbcMain();
     std::vector<ICbcNode*> getCbcNodeList();
-    std::vector<IClpSimplex*> getClpSimplexList();
+    std::vector<OsiSolverInterface*> getOsiSolverInterfaceList();
 };
 
 
