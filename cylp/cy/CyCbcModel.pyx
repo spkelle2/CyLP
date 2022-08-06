@@ -8,6 +8,7 @@ except ImportError:  # Python 3 does not have izip, use zip
 from cylp.py.mip import NodeCompareBase
 from cylp.py.modeling.CyLPModel import CyLPSolution
 from cylp.cy.CyCutGeneratorPythonBase cimport CyCutGeneratorPythonBase
+from cylp.cy.CyClpSimplex import CyClpSimplex
 from cylp.cy.CyOsiSolverInterface import CyOsiSolverInterface
 from cython.operator cimport dereference, postincrement
 from libcpp cimport bool
@@ -87,19 +88,18 @@ cdef class CyCbcModel:
 
     '''
 
-    def __cinit__(self, cyLPModel=None):
-        self.cyLPModel = cyLPModel
+    # why do I need CyLPmodel as an attribute? I think pulling clp's should be fine
+    def __cinit__(self, ClpModel: CyClpSimplex):
+        assert isinstance(ClpModel, CyClpSimplex), 'ClpModel must be a CyClpSimplex instance'
+        self.CppSelf = new CppICbcModel(ClpModel.CppSelf)
+        self.setClpModel(ClpModel)
+        self.cyLPModel = ClpModel.cyLPModel
         self.cutGenerators = []
 
     def __dealloc__(self):
         for generator in self.cutGenerators:
             Py_DECREF(generator)
-
-        try:
-            if self.CppSelf:
-                del self.CppSelf
-        except AttributeError:
-            pass
+        del self.CppSelf
 
     cdef setCppSelf(self, CppICbcModel* cppmodel):
         self.CppSelf = cppmodel
@@ -310,5 +310,30 @@ cdef class CyCbcModel:
                 lp.setCppSelf(cppSimplexList[i])
                 node_map[CyCbcNode().setCppSelf(cppNodeList[i])] = lp
             return node_map
+
+    property nodeList:
+        def __get__(self):
+            node_list = []
+            cppNodeList = self.CppSelf.getCbcNodeList()
+            for i in range(cppNodeList.size()):
+                node_list.append(CyCbcNode().setCppSelf(cppNodeList[i]))
+            return node_list
+
+    property lpList:
+        def __get__(self):
+            lp_list = []
+            cppSimplexList = self.CppSelf.getClpSimplexList()
+            for i in range(cppSimplexList.size()):
+                lp = CyClpSimplex()
+                lp.setCppSelf(cppSimplexList[i])
+                lp_list.append(lp)
+            return lp_list
+
+    property singleLp:
+        def __get__(self):
+            cppSimplexList = self.CppSelf.getClpSimplexList()
+            lp = CyClpSimplex()
+            lp.setCppSelf(cppSimplexList[0])
+            return lp
 
     #TODO: add access to solver: getLower, getUpper,...

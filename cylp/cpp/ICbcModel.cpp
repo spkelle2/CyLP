@@ -20,6 +20,10 @@ ICbcModel::ICbcModel(OsiClpSolverInterface& osiint):CbcModel(osiint){
     _import_array();
 }
 
+ICbcModel::ICbcModel(IClpSimplex* ClpModel):CbcModel(ClpModel->getOsiClpSolverInterface()){
+    _import_array();
+}
+
 void ICbcModel::setNodeCompare(PyObject* obj,
                            runTest_t runTest, runNewSolution_t runNewSolution,
                            runEvery1000Nodes_t runEvery1000Nodes){
@@ -48,7 +52,7 @@ int ICbcModel::cbcMain(){
 std::vector<ICbcNode*> ICbcModel::getCbcNodeList() {
     std::vector<ICbcNode*> recastNodeList;
     for (unsigned int i = 0; i < this->getNodeMap().size(); i++) {
-        ICbcNode* node = (ICbcNode*)(this->getNodeMap()[i].first);
+        ICbcNode* node = static_cast<ICbcNode*>(this->getNodeMap()[i].first);
         recastNodeList.push_back(node);
     }
     return recastNodeList;
@@ -57,7 +61,7 @@ std::vector<ICbcNode*> ICbcModel::getCbcNodeList() {
 std::vector<IClpSimplex*> ICbcModel::getClpSimplexList() {
     std::vector<IClpSimplex*> recastSimplexList;
     for (unsigned int i = 0; i < this->getNodeMap().size(); i++) {
-        IClpSimplex* lp = (IClpSimplex*)(this->getNodeMap()[i].second);
+        IClpSimplex* lp = static_cast<IClpSimplex*>(this->getNodeMap()[i].second.get());
         recastSimplexList.push_back(lp);
     }
     return recastSimplexList;

@@ -5,7 +5,6 @@
 #include "IClpSimplexPrimal.hpp"
 #include "ClpSimplexPrimal.hpp"
 #include "IClpPackedMatrix.hpp"
-#include "OsiClpSolverInterface.hpp"
 #include <sstream>
 
 // define PyInt_* macros for Python 3.x
@@ -734,13 +733,12 @@ int IClpSimplex::checkVar(int varInd){
 }
 
 
-ICbcModel* IClpSimplex::getICbcModel(){
+OsiClpSolverInterface IClpSimplex::getOsiClpSolverInterface(){
     // ?
     matrix_->setDimensions(numberRows_, numberColumns_);
 
     OsiClpSolverInterface solver1(this);
-    ICbcModel*  model = new ICbcModel(solver1);
-    return model;
+    return solver1;
 }
 
 void  IClpSimplex::writeLp(const char *filename,

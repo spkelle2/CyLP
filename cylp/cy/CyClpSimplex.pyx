@@ -77,7 +77,6 @@ cdef class CyClpSimplex:
                                 <runIsPivotAcceptable_t>RunIsPivotAcceptable,
                                 <varSelCriteria_t>RunVarSelCriteria)
         self.vars = []
-        #self.cbcModelExists = False
         self.coinModel = CyCoinModel()
 
         self.cyLPModel = cyLPModel
@@ -299,8 +298,6 @@ cdef class CyClpSimplex:
         :rtype: Numpy array
         '''
         def __get__(self):
-            #if self.cbcModelExists:
-            #    return <object>self.cbcModel.getPrimalVariableSolution()
             ret = <object>self.CppSelf.getPrimalColumnSolution()
             if self.cyLPModel:
                 m = self.cyLPModel
@@ -332,8 +329,6 @@ cdef class CyClpSimplex:
         :rtype: Numpy array
         '''
         def __get__(self):
-            #if self.cbcModelExists:
-            #    return <object>self.cbcModel.getPrimalVariableSolution()
             return <object>self.CppSelf.getPrimalColumnSolutionAll()
 
     property solution:
@@ -343,8 +338,6 @@ cdef class CyClpSimplex:
         :rtype: Numpy array
         '''
         def __get__(self):
-            #if self.cbcModelExists:
-            #    return <object>self.cbcModel.getPrimalVariableSolution()
             return <object>self.CppSelf.getSolutionRegion()
 
     property cost:
@@ -354,8 +347,6 @@ cdef class CyClpSimplex:
         :rtype: Numpy array
         '''
         def __get__(self):
-            #if self.cbcModelExists:
-            #    return <object>self.cbcModel.getPrimalVariableSolution()
             return <object>self.CppSelf.getCostRegion()
 
     property dualVariableSolution:
@@ -1681,6 +1672,7 @@ cdef class CyClpSimplex:
         if ``arg`` is a :class:`CyLPVar` object: mark variable
         ``arg`` as integer. Here is an example of the latter:
 
+        # todo: update this example to work with new construction
         >>> import numpy as np
         >>> from cylp.cy import CyClpSimplex
         >>> from cylp.py.modeling.CyLPModel import CyLPModel, CyLPArray
@@ -1949,24 +1941,6 @@ cdef class CyClpSimplex:
             return self.objectiveCoefficients + self.Hessian * x0
         else:
             return self.objectiveCoefficients
-
-
-    #############################################
-    # Integer Programming
-    #############################################
-
-    def getCbcModel(self):
-        '''
-        Run initialSolve, return a :class:`CyCbcModel` object that can be
-        used to add cuts, run B&B and ...
-        '''
-        cdef CppICbcModel* model = self.CppSelf.getICbcModel()
-        cm =  CyCbcModel()
-        cm.setCppSelf(model)
-        cm.setClpModel(self)
-        if self.cyLPModel:
-            cm.cyLPModel = self.cyLPModel
-        return cm
 
     #############################################
     # cylp and Pivoting

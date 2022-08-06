@@ -14,7 +14,6 @@ from cylp.cy.CyClpDualRowPivotBase cimport CyClpDualRowPivotBase
 #from cylp.cy.CyCoinIndexedVector cimport CyCoinIndexedVector, CppCoinIndexedVector
 from cylp.cy.CyCoinModel cimport CyCoinModel, CppCoinModel
 from cylp.cy.CyCoinPackedMatrix cimport CyCoinPackedMatrix, CppCoinPackedMatrix
-from cylp.cy.CyCbcModel cimport CyCbcModel, CppICbcModel
 from cylp.python.modeling.CyLPModel import CyLPModel
 from cylp.cy.CyCoinIndexedVector cimport CyCoinIndexedVector, CppCoinIndexedVector
 
@@ -263,7 +262,6 @@ cdef extern from "IClpSimplex.hpp":
         int argWeightedMax(PyObject* arr, PyObject* arr_ind, PyObject* w,
                             PyObject* w_ind)
 
-        CppICbcModel* getICbcModel()
         void writeLp(char *filename, char *extension,
                        double epsilon, int numberAcross,
                        int decimals, double objSense,
@@ -309,7 +307,6 @@ cdef class CyClpSimplex:
     cdef object varSelCriteria
     cdef CyCoinModel coinModel
     cdef object cyLPModel
-    cdef CyCbcModel cbcModel
     cdef object _Hessian
 
     #cdef void prepareForCython(self, int useCustomPrimal)
@@ -317,9 +314,7 @@ cdef class CyClpSimplex:
 
     cdef CyClpPrimalColumnPivotBase cyPivot
     cdef CyClpDualRowPivotBase cyDualPivot
-    #cdef CppICbcModel* cbcModel
     #cdef object nodeCompareObject
-    #cdef cbcModelExists
     #cdef object pivotMethodObject
     #cdef object isPivotAcceptable_func
 

@@ -28,7 +28,7 @@ cdef extern from "ICbcModel.hpp":
     # ctypedef CppICbcNode * CppICbcNode_ptr
     cdef cppclass CppICbcModel "ICbcModel":
         PyObject* getPrimalVariableSolution()
-
+        CppICbcModel(CppIClpSimplex*)
         int cbcMain()
         int getSolutionCount()
         int getNumberHeuristicSolutions()
