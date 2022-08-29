@@ -155,6 +155,11 @@ cdef extern from "IClpSimplex.hpp":
 
         double* rowUpper()
         double* rowLower()
+        double * columnUpper()
+        double * columnLower()
+        double * objective()
+        double * rowObjective()
+        CppCoinPackedMatrix * matrix()
         int numberRows()
         int* ComplementarityList()
         int * pivotVariable()

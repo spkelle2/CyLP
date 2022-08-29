@@ -3,6 +3,7 @@ from cpython.ref cimport PyObject
 from cylp.cy.CyCgl cimport CyCglCutGenerator, CppCglCutGenerator
 from cylp.cy.CyCbcNode cimport CyCbcNode, CppICbcNode
 from cylp.cy.CyClpSimplex cimport CyClpSimplex, CppIClpSimplex
+from cylp.cy.CyCoinPackedMatrix cimport CyCoinPackedMatrix, CppCoinPackedMatrix
 from cylp.cy.CyOsiSolverInterface cimport CppOsiSolverInterface, CyOsiSolverInterface
 from cpython cimport Py_INCREF, Py_DECREF
 from libcpp.map cimport map
@@ -91,7 +92,13 @@ cdef extern from "ICbcModel.hpp":
         # this makes available nodeList from c++ code in CBC
         # todo: test these get matched in the right order
         vector[CppICbcNode*] getCbcNodeList()
-        vector[CppIClpSimplex*] getClpSimplexList()
+        vector[CppCoinPackedMatrix*] getMatrixList()
+        vector[double*] getColumnLowerList()
+        vector[double*] getColumnUpperList()
+        vector[double*] getObjectiveList()
+        vector[double*] getRowLowerList()
+        vector[double*] getRowUpperList()
+        vector[double*] getRowObjectiveList()
         
         CppOsiSolverInterface* solver()
 

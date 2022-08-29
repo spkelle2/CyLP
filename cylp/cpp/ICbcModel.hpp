@@ -15,6 +15,7 @@
 #include "OsiClpSolverInterface.hpp"
 #include "ICbcNode.hpp"
 #include "IClpSimplex.hpp"
+#include "ICoinPackedMatrix.hpp"
 //#include "CbcSolver.hpp"
 //#include "CbcCompareUser.hpp"
 
@@ -41,6 +42,13 @@ public:
     int cbcMain();
     std::vector<ICbcNode*> getCbcNodeList();
     std::vector<IClpSimplex*> getClpSimplexList();
+    std::vector<ICoinPackedMatrix*> getMatrixList();
+    std::vector<double*> getColumnLowerList();
+    std::vector<double*> getColumnUpperList();
+    std::vector<double*> getObjectiveList();
+    std::vector<double*> getRowLowerList();
+    std::vector<double*> getRowUpperList();
+    std::vector<double*> getRowObjectiveList();
 };
 
 

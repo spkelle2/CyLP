@@ -229,6 +229,7 @@ cdef class CyClpSimplex:
                              shape=(self.nConstraints, self.nVariables))
 
         def __set__(self, sparseMatrix):
+            print('setting coefMatrix')
             try:
                 m = sparseMatrix.tocoo()
             except:

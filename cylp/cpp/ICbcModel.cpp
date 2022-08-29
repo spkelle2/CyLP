@@ -1,3 +1,5 @@
+#include "iostream"
+
 #include "ICbcModel.hpp"
 #include "ICbcNode.hpp"
 
@@ -5,6 +7,8 @@
 #include "CbcSolver.hpp"
 #include "CbcNodeInfo.hpp"
 #include "CoinWarmStartBasis.hpp"
+#include "IClpSimplex.hpp"
+#include "ICoinPackedMatrix.hpp"
 
 PyObject* ICbcModel::getPrimalVariableSolution(){
 
@@ -35,34 +39,83 @@ void ICbcModel::setNodeCompare(PyObject* obj,
 
 
 int ICbcModel::cbcMain(){
-        // initialize
-        int returnCode = -1;
-	int logLevel = this->logLevel();
-        const char* argv[] = {"ICbcModel", "-solve","-quit"};
-        CbcMain0(*this);
-	this->setLogLevel(logLevel);
-        return CbcMain1(3, argv, *this);
-        //const char* argv = "-solve -quit";
-        //CbcSolverUsefulData solverData;
-        //CbcMain0(*this, solverData);
-	//this->setLogLevel(logLevel);
-        //return CbcMain1(3, argv, *this, NULL, solverData);
+    // initialize
+    int returnCode = -1;
+    int logLevel = this->logLevel();
+    const char* argv[] = {"ICbcModel", "-preprocess", "off", "-presolve", "off", "-solve", "-quit"};
+    CbcMain0(*this);
+    this->setLogLevel(logLevel);
+    return CbcMain1(7, argv, *this);
+    //const char* argv = "-solve -quit";
+    //CbcSolverUsefulData solverData;
+    //CbcMain0(*this, solverData);
+    //this->setLogLevel(logLevel);
+    //return CbcMain1(3, argv, *this, NULL, solverData);
 }
 
 std::vector<ICbcNode*> ICbcModel::getCbcNodeList() {
-    std::vector<ICbcNode*> recastNodeList;
+    std::vector<ICbcNode*> nodeList;
     for (unsigned int i = 0; i < this->getNodeMap().size(); i++) {
-        ICbcNode* node = static_cast<ICbcNode*>(this->getNodeMap()[i].first);
-        recastNodeList.push_back(node);
+        std::cout << "node " << i << "\n";
+        ICbcNode* node = new ICbcNode(this->getNodeMap()[i].first.get());
+        nodeList.push_back(node);
     }
-    return recastNodeList;
+    return nodeList;
 }
 
-std::vector<IClpSimplex*> ICbcModel::getClpSimplexList() {
-    std::vector<IClpSimplex*> recastSimplexList;
+std::vector<ICoinPackedMatrix*> ICbcModel::getMatrixList() {
+    std::vector<ICoinPackedMatrix*> matrixList;
     for (unsigned int i = 0; i < this->getNodeMap().size(); i++) {
-        IClpSimplex* lp = static_cast<IClpSimplex*>(this->getNodeMap()[i].second.get());
-        recastSimplexList.push_back(lp);
+        ICoinPackedMatrix* matrix = new ICoinPackedMatrix(this->getNodeMap()[i].second.get()->matrix());
+        matrixList.push_back(matrix);
     }
-    return recastSimplexList;
+    return matrixList;
+}
+
+std::vector<double*> ICbcModel::getColumnLowerList() {
+    std::vector<double*> columnLowerList;
+    for (unsigned int i = 0; i < this->getNodeMap().size(); i++) {
+        columnLowerList.push_back(this->getNodeMap()[i].second.get()->columnLower());
+    }
+    return columnLowerList;
+}
+
+std::vector<double*> ICbcModel::getColumnUpperList() {
+    std::vector<double*> columnUpperList;
+    for (unsigned int i = 0; i < this->getNodeMap().size(); i++) {
+        columnUpperList.push_back(this->getNodeMap()[i].second.get()->columnUpper());
+    }
+    return columnUpperList;
+}
+
+std::vector<double*> ICbcModel::getObjectiveList() {
+    std::vector<double*> objectiveList;
+    for (unsigned int i = 0; i < this->getNodeMap().size(); i++) {
+        objectiveList.push_back(this->getNodeMap()[i].second.get()->objective());
+    }
+    return objectiveList;
+}
+
+std::vector<double*> ICbcModel::getRowLowerList() {
+    std::vector<double*> rowLowerList;
+    for (unsigned int i = 0; i < this->getNodeMap().size(); i++) {
+        rowLowerList.push_back(this->getNodeMap()[i].second.get()->rowLower());
+    }
+    return rowLowerList;
+}
+
+std::vector<double*> ICbcModel::getRowUpperList() {
+    std::vector<double*> rowUpperList;
+    for (unsigned int i = 0; i < this->getNodeMap().size(); i++) {
+        rowUpperList.push_back(this->getNodeMap()[i].second.get()->rowUpper());
+    }
+    return rowUpperList;
+}
+
+std::vector<double*> ICbcModel::getRowObjectiveList() {
+    std::vector<double*> rowObjectiveList;
+    for (unsigned int i = 0; i < this->getNodeMap().size(); i++) {
+        rowObjectiveList.push_back(this->getNodeMap()[i].second.get()->rowObjective());
+    }
+    return rowObjectiveList;
 }

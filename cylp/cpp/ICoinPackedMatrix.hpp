@@ -27,6 +27,8 @@ public:
      const int * colIndices,
      const double * elements,
      CoinBigIndex numels );
+
+    ICoinPackedMatrix(CoinPackedMatrix* m);
 };
 
 

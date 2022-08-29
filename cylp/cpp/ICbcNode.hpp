@@ -17,6 +17,8 @@
 class ICbcNode : public CbcNode{
 public:
     bool breakTie(ICbcNode* y);
+    ICbcNode();
+    ICbcNode(CbcNode* n);
 };
 
 

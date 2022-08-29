@@ -1,3 +1,4 @@
+#include "CoinPackedMatrix.hpp"
 #include "ICoinPackedMatrix.hpp"
 
 PyObject* ICoinPackedMatrix::np_getIndices(){
@@ -43,3 +44,6 @@ ICoinPackedMatrix::ICoinPackedMatrix(const bool colordered,
      CoinBigIndex numels ):CoinPackedMatrix(colordered, rowIndices, colIndices, elements, numels){
 }
 
+// make an ICoinPackedMatrix from a copy of an existing ICoinPackedMatrix
+ICoinPackedMatrix::ICoinPackedMatrix(CoinPackedMatrix* m):CoinPackedMatrix(*m){
+}

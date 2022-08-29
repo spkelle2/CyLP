@@ -9,6 +9,7 @@ from cylp.py.mip import NodeCompareBase
 from cylp.py.modeling.CyLPModel import CyLPSolution
 from cylp.cy.CyCutGeneratorPythonBase cimport CyCutGeneratorPythonBase
 from cylp.cy.CyClpSimplex import CyClpSimplex
+from cylp.cy.CyCoinPackedMatrix cimport CyCoinPackedMatrix, CppCoinPackedMatrix
 from cylp.cy.CyOsiSolverInterface import CyOsiSolverInterface
 from cython.operator cimport dereference, postincrement
 from libcpp cimport bool
@@ -99,7 +100,6 @@ cdef class CyCbcModel:
     def __dealloc__(self):
         for generator in self.cutGenerators:
             Py_DECREF(generator)
-        del self.CppSelf
 
     cdef setCppSelf(self, CppICbcModel* cppmodel):
         self.CppSelf = cppmodel
@@ -303,37 +303,23 @@ cdef class CyCbcModel:
     property nodeMap:
         def __get__(self):
             node_map = {}
-            cppNodeList = self.CppSelf.getCbcNodeList()
-            cppSimplexList = self.CppSelf.getClpSimplexList()
-            for i in range(cppNodeList.size()):
+            cdef vector[CppICbcNode *] cppNodeList = self.CppSelf.getCbcNodeList()
+            cdef vector[CppCoinPackedMatrix *] cppMatrixList = self.CppSelf.getMatrixList()
+            cdef vector[double *] cppColumnLowerList = self.CppSelf.getColumnLowerList()
+            cdef vector[double *] cppColumnUpperList = self.CppSelf.getColumnUpperList()
+            cdef vector[double *] cppObjectiveList = self.CppSelf.getObjectiveList()
+            cdef vector[double *] cppRowLowerList = self.CppSelf.getRowLowerList()
+            cdef vector[double *] cppRowUpperList = self.CppSelf.getRowUpperList()
+            cdef vector[double *] cppRowObjectiveList = self.CppSelf.getRowObjectiveList()
+
+            for i in range(cppMatrixList.size()):
+                node = CyCbcNode().setCppSelf(cppNodeList[i])
                 lp = CyClpSimplex()
-                lp.setCppSelf(cppSimplexList[i])
-                node_map[CyCbcNode().setCppSelf(cppNodeList[i])] = lp
+                lp.CppSelf.loadProblem(cppMatrixList[i], cppColumnLowerList[i],
+                                       cppColumnUpperList[i], cppObjectiveList[i],
+                                       cppRowLowerList[i], cppRowUpperList[i],
+                                       cppRowObjectiveList[i])
+                node_map[node] = lp
             return node_map
-
-    property nodeList:
-        def __get__(self):
-            node_list = []
-            cppNodeList = self.CppSelf.getCbcNodeList()
-            for i in range(cppNodeList.size()):
-                node_list.append(CyCbcNode().setCppSelf(cppNodeList[i]))
-            return node_list
-
-    property lpList:
-        def __get__(self):
-            lp_list = []
-            cppSimplexList = self.CppSelf.getClpSimplexList()
-            for i in range(cppSimplexList.size()):
-                lp = CyClpSimplex()
-                lp.setCppSelf(cppSimplexList[i])
-                lp_list.append(lp)
-            return lp_list
-
-    property singleLp:
-        def __get__(self):
-            cppSimplexList = self.CppSelf.getClpSimplexList()
-            lp = CyClpSimplex()
-            lp.setCppSelf(cppSimplexList[0])
-            return lp
 
     #TODO: add access to solver: getLower, getUpper,...
