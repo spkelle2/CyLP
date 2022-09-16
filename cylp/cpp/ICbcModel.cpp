@@ -55,9 +55,9 @@ int ICbcModel::cbcMain(){
 
 std::vector<ICbcNode*> ICbcModel::getCbcNodeList() {
     std::vector<ICbcNode*> nodeList;
-    for (unsigned int i = 0; i < this->getNodeMap().size(); i++) {
+    for (unsigned int i = 0; i < this->nodeMap().size(); i++) {
         std::cout << "node " << i << "\n";
-        ICbcNode* node = new ICbcNode(this->getNodeMap()[i].first.get());
+        ICbcNode* node = new ICbcNode(this->nodeMap()[i].first.get());
         nodeList.push_back(node);
     }
     return nodeList;
@@ -65,8 +65,8 @@ std::vector<ICbcNode*> ICbcModel::getCbcNodeList() {
 
 std::vector<ICoinPackedMatrix*> ICbcModel::getMatrixList() {
     std::vector<ICoinPackedMatrix*> matrixList;
-    for (unsigned int i = 0; i < this->getNodeMap().size(); i++) {
-        ICoinPackedMatrix* matrix = new ICoinPackedMatrix(this->getNodeMap()[i].second.get()->matrix());
+    for (unsigned int i = 0; i < this->nodeMap().size(); i++) {
+        ICoinPackedMatrix* matrix = new ICoinPackedMatrix(this->nodeMap()[i].second.get()->matrix());
         matrixList.push_back(matrix);
     }
     return matrixList;
@@ -74,48 +74,48 @@ std::vector<ICoinPackedMatrix*> ICbcModel::getMatrixList() {
 
 std::vector<double*> ICbcModel::getColumnLowerList() {
     std::vector<double*> columnLowerList;
-    for (unsigned int i = 0; i < this->getNodeMap().size(); i++) {
-        columnLowerList.push_back(this->getNodeMap()[i].second.get()->columnLower());
+    for (unsigned int i = 0; i < this->nodeMap().size(); i++) {
+        columnLowerList.push_back(this->nodeMap()[i].second.get()->columnLower());
     }
     return columnLowerList;
 }
 
 std::vector<double*> ICbcModel::getColumnUpperList() {
     std::vector<double*> columnUpperList;
-    for (unsigned int i = 0; i < this->getNodeMap().size(); i++) {
-        columnUpperList.push_back(this->getNodeMap()[i].second.get()->columnUpper());
+    for (unsigned int i = 0; i < this->nodeMap().size(); i++) {
+        columnUpperList.push_back(this->nodeMap()[i].second.get()->columnUpper());
     }
     return columnUpperList;
 }
 
 std::vector<double*> ICbcModel::getObjectiveList() {
     std::vector<double*> objectiveList;
-    for (unsigned int i = 0; i < this->getNodeMap().size(); i++) {
-        objectiveList.push_back(this->getNodeMap()[i].second.get()->objective());
+    for (unsigned int i = 0; i < this->nodeMap().size(); i++) {
+        objectiveList.push_back(this->nodeMap()[i].second.get()->objective());
     }
     return objectiveList;
 }
 
 std::vector<double*> ICbcModel::getRowLowerList() {
     std::vector<double*> rowLowerList;
-    for (unsigned int i = 0; i < this->getNodeMap().size(); i++) {
-        rowLowerList.push_back(this->getNodeMap()[i].second.get()->rowLower());
+    for (unsigned int i = 0; i < this->nodeMap().size(); i++) {
+        rowLowerList.push_back(this->nodeMap()[i].second.get()->rowLower());
     }
     return rowLowerList;
 }
 
 std::vector<double*> ICbcModel::getRowUpperList() {
     std::vector<double*> rowUpperList;
-    for (unsigned int i = 0; i < this->getNodeMap().size(); i++) {
-        rowUpperList.push_back(this->getNodeMap()[i].second.get()->rowUpper());
+    for (unsigned int i = 0; i < this->nodeMap().size(); i++) {
+        rowUpperList.push_back(this->nodeMap()[i].second.get()->rowUpper());
     }
     return rowUpperList;
 }
 
 std::vector<double*> ICbcModel::getRowObjectiveList() {
     std::vector<double*> rowObjectiveList;
-    for (unsigned int i = 0; i < this->getNodeMap().size(); i++) {
-        rowObjectiveList.push_back(this->getNodeMap()[i].second.get()->rowObjective());
+    for (unsigned int i = 0; i < this->nodeMap().size(); i++) {
+        rowObjectiveList.push_back(this->nodeMap()[i].second.get()->rowObjective());
     }
     return rowObjectiveList;
 }
