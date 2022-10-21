@@ -14,6 +14,7 @@ from cylp.cy.CyCoinPackedMatrix cimport CyCoinPackedMatrix, CppCoinPackedMatrix
 from cylp.cy.CyOsiSolverInterface import CyOsiSolverInterface
 from cython.operator cimport dereference, postincrement
 from libcpp cimport bool
+from libc.stdlib cimport malloc, free
 
 
 cdef int RunTest(void* ptr, CppICbcNode*x, CppICbcNode*y):
@@ -145,12 +146,28 @@ cdef class CyCbcModel:
                                     infeasible, howOftenInSub, whatDepth,
                                     whatDepthInSub)
 
-    def solve(self):
+    def solve(self, arguments: list[str] = None):
         '''
         Call CbcMain. Solve the problem using the same parameters used by CbcSolver.
         Equivalent to solving the model from the command line using cbc's binary.
+        arguments specifies the keyword arguments to pass along to the solver, e.g.
+        arguments = ["-preprocess", "off", "-presolve", "off"]
         '''
-        return self.CppSelf.cbcMain()
+        assert all(isinstance(arg, str) for arg in arguments), 'each argument should be string'
+
+        arguments = arguments or []
+        cdef const char** to_pass
+
+        arguments = ["ICbcModel"] + arguments + ["-solve", "-quit"]
+        arguments = [arg.encode('UTF-8') for arg in arguments]
+        to_pass = <const char**> malloc(sizeof(const char *) * len(arguments))
+        try:
+            for n, a in enumerate(arguments):
+                to_pass[n] = a  # use auto-conversion from Python bytes to char*
+            rtn = self.CppSelf.cbcMain(len(arguments), to_pass)
+        finally:
+            free(to_pass)
+        return rtn
 
     property status:
         def __get__(self):

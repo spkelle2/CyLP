@@ -39,7 +39,7 @@ public:
     void setNodeCompare(PyObject* obj,
                            runTest_t runTest, runNewSolution_t runNewSolution,
                            runEvery1000Nodes_t runEvery1000Nodes);
-    int cbcMain();
+    int cbcMain(int argc, const char *argv[]);
     std::vector<ICbcNode*> getCbcNodeList();
     std::vector<IClpSimplex*> getClpSimplexList();
     std::vector<ICoinPackedMatrix*> getMatrixList();

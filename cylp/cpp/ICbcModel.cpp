@@ -38,14 +38,13 @@ void ICbcModel::setNodeCompare(PyObject* obj,
 }
 
 
-int ICbcModel::cbcMain(){
+int ICbcModel::cbcMain(int argc, const char *argv[]){
     // initialize
     int returnCode = -1;
     int logLevel = this->logLevel();
-    const char* argv[] = {"ICbcModel", "-preprocess", "off", "-presolve", "off", "-solve", "-quit"};
     CbcMain0(*this);
     this->setLogLevel(logLevel);
-    return CbcMain1(7, argv, *this);
+    return CbcMain1(argc, argv, *this);
     //const char* argv = "-solve -quit";
     //CbcSolverUsefulData solverData;
     //CbcMain0(*this, solverData);
