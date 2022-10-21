@@ -6,9 +6,10 @@ try:
 except ImportError:  # Python 3 does not have izip, use zip
     izip = zip
 from cylp.py.mip import NodeCompareBase
-from cylp.py.modeling.CyLPModel import CyLPSolution
+from cylp.py.modeling.CyLPModel import CyLPSolution, CyLPModel
+from cylp.py.utils.sparseUtil import csc_matrixPlus
 from cylp.cy.CyCutGeneratorPythonBase cimport CyCutGeneratorPythonBase
-from cylp.cy.CyClpSimplex import CyClpSimplex
+from cylp.cy.CyClpSimplex import CyClpSimplex, CyLPArray
 from cylp.cy.CyCoinPackedMatrix cimport CyCoinPackedMatrix, CppCoinPackedMatrix
 from cylp.cy.CyOsiSolverInterface import CyOsiSolverInterface
 from cython.operator cimport dereference, postincrement
@@ -311,6 +312,7 @@ cdef class CyCbcModel:
             cdef vector[double *] cppRowLowerList = self.CppSelf.getRowLowerList()
             cdef vector[double *] cppRowUpperList = self.CppSelf.getRowUpperList()
             cdef vector[double *] cppRowObjectiveList = self.CppSelf.getRowObjectiveList()
+            cdef vector[char *] cppIntegerInformationList = self.CppSelf.getIntegerInformationList()
 
             for i in range(cppMatrixList.size()):
                 node = CyCbcNode().setCppSelf(cppNodeList[i])
@@ -319,6 +321,35 @@ cdef class CyCbcModel:
                                        cppColumnUpperList[i], cppObjectiveList[i],
                                        cppRowLowerList[i], cppRowUpperList[i],
                                        cppRowObjectiveList[i])
+                # make CyLP model
+                m = CyLPModel()
+
+                # make variable
+                x = m.addVariable('x', lp.nVariables)
+
+                # make constraints
+                c_up = CyLPArray(lp.constraintsUpper).copy()
+                c_low = CyLPArray(lp.constraintsLower).copy()
+                mat = lp.matrix
+                C = csc_matrixPlus((mat.elements, mat.indices, mat.vectorStarts),
+                                   shape=(lp.nConstraints, lp.nVariables))
+                m += c_low <= C * x <= c_up
+
+                # make variable bounds
+                x_up = CyLPArray(lp.variablesUpper).copy()
+                x_low = CyLPArray(lp.variablesLower).copy()
+                m += x_low <= x <= x_up
+
+                # set objective
+                m.objective = lp.objective
+
+                lp.cyLPModel = m
+
+                # set integrality
+                for j in range(lp.nVariables):
+                    if cppIntegerInformationList[i][j] == 1:
+                        lp.setInteger(j)
+
                 node_map[node] = lp
             return node_map
 

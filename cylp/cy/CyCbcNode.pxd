@@ -13,6 +13,9 @@ cdef extern from "ICbcNode.hpp":
         int nodeMapLeafStatus()
         vector[int] nodeMapLineage()
         int nodeMapIndex()
+        int branchVariable()
+        int branchWay()
+        int lpFeasible()
 
 cdef class CyCbcNode:
     cdef CppICbcNode* CppSelf

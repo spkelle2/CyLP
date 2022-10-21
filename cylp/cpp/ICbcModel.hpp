@@ -49,6 +49,7 @@ public:
     std::vector<double*> getRowLowerList();
     std::vector<double*> getRowUpperList();
     std::vector<double*> getRowObjectiveList();
+    std::vector<char*> getIntegerInformationList();
 };
 
 

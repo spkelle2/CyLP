@@ -56,7 +56,6 @@ int ICbcModel::cbcMain(){
 std::vector<ICbcNode*> ICbcModel::getCbcNodeList() {
     std::vector<ICbcNode*> nodeList;
     for (unsigned int i = 0; i < this->nodeMap().size(); i++) {
-        std::cout << "node " << i << "\n";
         ICbcNode* node = new ICbcNode(this->nodeMap()[i].first.get());
         nodeList.push_back(node);
     }
@@ -118,4 +117,12 @@ std::vector<double*> ICbcModel::getRowObjectiveList() {
         rowObjectiveList.push_back(this->nodeMap()[i].second.get()->rowObjective());
     }
     return rowObjectiveList;
+}
+
+std::vector<char*> ICbcModel::getIntegerInformationList() {
+    std::vector<char*> integerInformationList;
+    for (unsigned int i = 0; i < this->nodeMap().size(); i++) {
+        integerInformationList.push_back(this->nodeMap()[i].second.get()->integerInformation());
+    }
+    return integerInformationList;
 }

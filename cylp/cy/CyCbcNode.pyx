@@ -38,7 +38,7 @@ cdef class CyCbcNode:
     property isLeaf:
         def __get__(self):
             status_code = self.CppSelf.nodeMapLeafStatus()
-            assert status_code in [0, 1], 'CbcModel.persistNodes must be true to use this attribute'
+            assert status_code in [0, 1], 'status code should be 0, 1'
             return bool(status_code)
 
     property lineage:
@@ -52,6 +52,24 @@ cdef class CyCbcNode:
             index = self.CppSelf.nodeMapIndex()
             assert index >= 0, 'CbcModel.persistNodes must be true to use this attribute'
             return index
+
+    property branchVariable:
+        def __get__(self):
+            branch_variable = self.CppSelf.branchVariable()
+            assert branch_variable >= 0, 'CbcModel.persistNodes must be true to use this attribute'
+            return branch_variable
+
+    property branchWay:
+        def __get__(self):
+            branch_way = self.CppSelf.branchWay()
+            assert branch_way in [-1, 1], 'CbcModel.persistNodes must be true to use this attribute'
+            return 'left' if branch_way == -1 else 'right'
+
+    property lpFeasible:
+        def __get__(self):
+            status = self.CppSelf.lpFeasible()
+            assert status in [0, 1, 2]
+            return None if status == 0 else True if status == 1 else False
 
     def breakTie(self, CyCbcNode y):
         return self.CppSelf.breakTie(y.CppSelf)

@@ -550,6 +550,13 @@ cdef class CyClpSimplex:
         def __get__(self):
             return <object>self.CppSelf.getIntegerInformation()
 
+    property integerIndices:
+        '''
+        A list of indices of integer variables
+        '''
+        def __get__(self):
+            return np.where(self.integerInformation)[0].tolist()
+
     property status:
         '''
         A Numpy array of all the variables' status

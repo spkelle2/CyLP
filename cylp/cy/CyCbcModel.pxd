@@ -99,6 +99,7 @@ cdef extern from "ICbcModel.hpp":
         vector[double*] getRowLowerList()
         vector[double*] getRowUpperList()
         vector[double*] getRowObjectiveList()
+        vector[char*] getIntegerInformationList()
         
         CppOsiSolverInterface* solver()
 

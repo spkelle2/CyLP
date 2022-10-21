@@ -304,7 +304,7 @@ cdef extern from "IClpSimplex.hpp":
 
 cdef class CyClpSimplex:
     '''
-    This is the documentation of CyClpSimpelx in the pyx class
+    This is the documentation of CyClpSimplex in the pyx class
     '''
 
     cpdef CppIClpSimplex *CppSelf
