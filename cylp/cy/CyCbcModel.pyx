@@ -149,7 +149,7 @@ cdef class CyCbcModel:
     def solve(self, arguments: list[str] = None):
         '''
         Call CbcMain. Solve the problem using the same parameters used by CbcSolver.
-        Equivalent to solving the model from the command line using cbc's binary.
+        Equivalent to solving the model from the command line using cbc's executable.
         arguments specifies the keyword arguments to pass along to the solver, e.g.
         arguments = ["-preprocess", "off", "-presolve", "off"]
         '''

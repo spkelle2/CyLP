@@ -56,14 +56,12 @@ cdef class CyCbcNode:
     property branchVariable:
         def __get__(self):
             branch_variable = self.CppSelf.branchVariable()
-            assert branch_variable >= 0, 'CbcModel.persistNodes must be true to use this attribute'
-            return branch_variable
+            return None if branch_variable < 0 else branch_variable
 
     property branchWay:
         def __get__(self):
             branch_way = self.CppSelf.branchWay()
-            assert branch_way in [-1, 1], 'CbcModel.persistNodes must be true to use this attribute'
-            return 'left' if branch_way == -1 else 'right'
+            return 'left' if branch_way == -1 else 'right' if branch_way == 1 else None
 
     property lpFeasible:
         def __get__(self):
