@@ -15,6 +15,14 @@ cdef class CyOsiSolverInterface:
         del self.CppSelf
         self.CppSelf = s
 
+    property primalVariableSolution:
+        def __get__(self):
+            cdef CppOsiClpSolverInterface * si = dynamic_cast_osi_2_clp(self.CppSelf)
+            solution = []
+            for i in range(si.getNumCols()):
+                solution.append(si.getColSolution()[i])
+            return solution
+
     property clpModel:
         def __get__(self):
             cdef CyClpSimplex s = CyClpSimplex()

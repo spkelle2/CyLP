@@ -138,6 +138,9 @@ cdef class CyCbcModel:
                         howOften=1, name="", normal=True, atSolution=False,
                         infeasible=False, howOftenInSub=-100, whatDepth=-1,
                         whatDepthInSub=-1):
+        if isinstance(name, str):
+            # Cast strings/unicode to bytes
+            name = name.encode('utf-8')
         cdef CyCutGeneratorPythonBase generator = \
                             CyCutGeneratorPythonBase(pythonCutGeneratorObject)
         generator.cyLPModel = self.cyLPModel
@@ -153,9 +156,8 @@ cdef class CyCbcModel:
         arguments specifies the keyword arguments to pass along to the solver, e.g.
         arguments = ["-preprocess", "off", "-presolve", "off"]
         '''
-        assert all(isinstance(arg, str) for arg in arguments), 'each argument should be string'
-
         arguments = arguments or []
+        assert all(isinstance(arg, str) for arg in arguments), 'each argument should be string'
         cdef const char** to_pass
 
         arguments = ["ICbcModel"] + arguments + ["-solve", "-quit"]
@@ -317,6 +319,14 @@ cdef class CyCbcModel:
             return self.CppSelf.persistNodes()
         def __set__(self, value):
             self.CppSelf.persistNodes(value)
+
+    property rootBound:
+        def __get__(self):
+            root_bound = []
+            cdef vector[double] cppRootBound = self.CppSelf.rootBound()
+            for i in range(cppRootBound.size()):
+                root_bound.append(cppRootBound[i])
+            return root_bound
 
     property nodeMap:
         def __get__(self):

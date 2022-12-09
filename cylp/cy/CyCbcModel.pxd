@@ -88,6 +88,8 @@ cdef extern from "ICbcModel.hpp":
 
         void persistNodes(bint value)
         bint persistNodes()
+
+        vector[double] rootBound()
         
         # this makes available nodeList from c++ code in CBC
         # todo: test these get matched in the right order
