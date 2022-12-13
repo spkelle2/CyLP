@@ -320,10 +320,10 @@ cdef class CyCbcModel:
         def __set__(self, value):
             self.CppSelf.persistNodes(value)
 
-    property rootBound:
+    property rootCutsDualBound:
         def __get__(self):
             root_bound = []
-            cdef vector[double] cppRootBound = self.CppSelf.rootBound()
+            cdef vector[double] cppRootBound = self.CppSelf.rootCutsDualBound()
             for i in range(cppRootBound.size()):
                 root_bound.append(cppRootBound[i])
             return root_bound
