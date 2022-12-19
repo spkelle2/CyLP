@@ -86,6 +86,8 @@ cdef extern from "ICbcModel.hpp":
         bint setMaximumSolutions(int value)
         int getMaximumSolutions()
 
+        int getObjSense()
+
         void persistNodes(bint value)
         bint persistNodes()
 
