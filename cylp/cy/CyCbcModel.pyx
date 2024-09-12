@@ -6,9 +6,15 @@ try:
 except ImportError:  # Python 3 does not have izip, use zip
     izip = zip
 from cylp.py.mip import NodeCompareBase
-from cylp.py.modeling.CyLPModel import CyLPSolution
+from cylp.py.modeling.CyLPModel import CyLPSolution, CyLPModel
+from cylp.py.utils.sparseUtil import csc_matrixPlus
 from cylp.cy.CyCutGeneratorPythonBase cimport CyCutGeneratorPythonBase
+from cylp.cy.CyClpSimplex import CyClpSimplex, CyLPArray
+from cylp.cy.CyCoinPackedMatrix cimport CyCoinPackedMatrix, CppCoinPackedMatrix
+from cylp.cy.CyOsiSolverInterface import CyOsiSolverInterface
+from cython.operator cimport dereference, postincrement
 from libcpp cimport bool
+from libc.stdlib cimport malloc, free
 
 
 cdef int RunTest(void* ptr, CppICbcNode*x, CppICbcNode*y):
@@ -85,19 +91,17 @@ cdef class CyCbcModel:
 
     '''
 
-    def __cinit__(self, cyLPModel=None):
-        self.cyLPModel = cyLPModel
+    # why do I need CyLPmodel as an attribute? I think pulling clp's should be fine
+    def __cinit__(self, ClpModel: CyClpSimplex):
+        assert isinstance(ClpModel, CyClpSimplex), 'ClpModel must be a CyClpSimplex instance'
+        self.CppSelf = new CppICbcModel(ClpModel.CppSelf)
+        self.setClpModel(ClpModel)
+        self.cyLPModel = ClpModel.cyLPModel
         self.cutGenerators = []
 
     def __dealloc__(self):
         for generator in self.cutGenerators:
             Py_DECREF(generator)
-
-        try:
-            if self.CppSelf:
-                del self.CppSelf
-        except AttributeError:
-            pass
 
     cdef setCppSelf(self, CppICbcModel* cppmodel):
         self.CppSelf = cppmodel
@@ -134,6 +138,9 @@ cdef class CyCbcModel:
                         howOften=1, name="", normal=True, atSolution=False,
                         infeasible=False, howOftenInSub=-100, whatDepth=-1,
                         whatDepthInSub=-1):
+        if isinstance(name, str):
+            # Cast strings/unicode to bytes
+            name = name.encode('utf-8')
         cdef CyCutGeneratorPythonBase generator = \
                             CyCutGeneratorPythonBase(pythonCutGeneratorObject)
         generator.cyLPModel = self.cyLPModel
@@ -142,12 +149,27 @@ cdef class CyCbcModel:
                                     infeasible, howOftenInSub, whatDepth,
                                     whatDepthInSub)
 
-    def solve(self):
+    def solve(self, arguments: list[str] = None):
         '''
         Call CbcMain. Solve the problem using the same parameters used by CbcSolver.
-        Equivalent to solving the model from the command line using cbc's binary.
+        Equivalent to solving the model from the command line using cbc's executable.
+        arguments specifies the keyword arguments to pass along to the solver, e.g.
+        arguments = ["-preprocess", "off", "-presolve", "off"]
         '''
-        return self.CppSelf.cbcMain()
+        arguments = arguments or []
+        assert all(isinstance(arg, str) for arg in arguments), 'each argument should be string'
+        cdef const char** to_pass
+
+        arguments = ["ICbcModel"] + arguments + ["-solve", "-quit"]
+        arguments = [arg.encode('UTF-8') for arg in arguments]
+        to_pass = <const char**> malloc(sizeof(const char *) * len(arguments))
+        try:
+            for n, a in enumerate(arguments):
+                to_pass[n] = a  # use auto-conversion from Python bytes to char*
+            rtn = self.CppSelf.cbcMain(len(arguments), to_pass)
+        finally:
+            free(to_pass)
+        return rtn
 
     property status:
         def __get__(self):
@@ -292,6 +314,74 @@ cdef class CyCbcModel:
         def __set__(self, value):
             self.CppSelf.setMaximumSolutions(value)
 
+    property sense:
+        def __get__(self):
+            return self.CppSelf.getObjSense()
 
+    property persistNodes:
+        def __get__(self):
+            return self.CppSelf.persistNodes()
+        def __set__(self, value):
+            self.CppSelf.persistNodes(value)
+
+    property rootCutsDualBound:
+        def __get__(self):
+            root_bound = []
+            cdef vector[double] cppRootBound = self.CppSelf.rootCutsDualBound()
+            for i in range(cppRootBound.size()):
+                root_bound.append(cppRootBound[i])
+            return root_bound
+
+    property nodeMap:
+        def __get__(self):
+            node_map = {}
+            cdef vector[CppICbcNode *] cppNodeList = self.CppSelf.getCbcNodeList()
+            cdef vector[CppCoinPackedMatrix *] cppMatrixList = self.CppSelf.getMatrixList()
+            cdef vector[double *] cppColumnLowerList = self.CppSelf.getColumnLowerList()
+            cdef vector[double *] cppColumnUpperList = self.CppSelf.getColumnUpperList()
+            cdef vector[double *] cppObjectiveList = self.CppSelf.getObjectiveList()
+            cdef vector[double *] cppRowLowerList = self.CppSelf.getRowLowerList()
+            cdef vector[double *] cppRowUpperList = self.CppSelf.getRowUpperList()
+            cdef vector[double *] cppRowObjectiveList = self.CppSelf.getRowObjectiveList()
+            cdef vector[char *] cppIntegerInformationList = self.CppSelf.getIntegerInformationList()
+
+            for i in range(cppMatrixList.size()):
+                node = CyCbcNode().setCppSelf(cppNodeList[i])
+                lp = CyClpSimplex()
+                lp.CppSelf.loadProblem(cppMatrixList[i], cppColumnLowerList[i],
+                                       cppColumnUpperList[i], cppObjectiveList[i],
+                                       cppRowLowerList[i], cppRowUpperList[i],
+                                       cppRowObjectiveList[i])
+                # make CyLP model
+                m = CyLPModel()
+
+                # make variable
+                x = m.addVariable('x', lp.nVariables)
+
+                # make constraints
+                c_up = CyLPArray(lp.constraintsUpper).copy()
+                c_low = CyLPArray(lp.constraintsLower).copy()
+                mat = lp.matrix
+                C = csc_matrixPlus((mat.elements, mat.indices, mat.vectorStarts),
+                                   shape=(lp.nConstraints, lp.nVariables))
+                m += c_low <= C * x <= c_up
+
+                # make variable bounds
+                x_up = CyLPArray(lp.variablesUpper).copy()
+                x_low = CyLPArray(lp.variablesLower).copy()
+                m += x_low <= x <= x_up
+
+                # set objective
+                m.objective = lp.objective
+
+                lp.cyLPModel = m
+
+                # set integrality
+                for j in range(lp.nVariables):
+                    if cppIntegerInformationList[i][j] == 1:
+                        lp.setInteger(j)
+
+                node_map[node] = lp
+            return node_map
 
     #TODO: add access to solver: getLower, getUpper,...

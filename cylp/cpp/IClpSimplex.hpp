@@ -12,9 +12,8 @@
 #include "ClpFactorization.hpp"
 #include "Python.h"
 #include <numpy/arrayobject.h>
-#include "ICbcModel.hpp"
 #include "ClpParameters.hpp"
-
+#include "OsiClpSolverInterface.hpp"
 #include "ICoinPackedMatrix.hpp"
 
 
@@ -226,7 +225,7 @@ public:
         return bestVarInd;
         }
 
-    ICbcModel* getICbcModel();
+    OsiClpSolverInterface getOsiClpSolverInterface();
     void writeLp(const char *filename,
                        const char *extension = "lp",
                        double epsilon = 1e-5,

@@ -12,3 +12,4 @@ cylp.egg-info
 setup.cfg
 dist/
 wheelhouse/
+.idea/

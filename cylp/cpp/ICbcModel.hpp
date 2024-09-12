@@ -14,8 +14,11 @@
 #include <numpy/arrayobject.h>
 #include "OsiClpSolverInterface.hpp"
 #include "ICbcNode.hpp"
+#include "IClpSimplex.hpp"
+#include "ICoinPackedMatrix.hpp"
 //#include "CbcSolver.hpp"
 //#include "CbcCompareUser.hpp"
+
 
 class ICbcModel;
 typedef int (*runTest_t)(void *instance, ICbcNode * x, ICbcNode * y);
@@ -30,12 +33,23 @@ typedef int (*runEvery1000Nodes_t)(void *instance,
 class ICbcModel : public CbcModel{
 public:
     ICbcModel(OsiClpSolverInterface&);
+    ICbcModel(IClpSimplex*);
     PyObject * getPrimalVariableSolution();
 
     void setNodeCompare(PyObject* obj,
                            runTest_t runTest, runNewSolution_t runNewSolution,
                            runEvery1000Nodes_t runEvery1000Nodes);
-    int cbcMain();
+    int cbcMain(int argc, const char *argv[]);
+    std::vector<ICbcNode*> getCbcNodeList();
+    std::vector<IClpSimplex*> getClpSimplexList();
+    std::vector<ICoinPackedMatrix*> getMatrixList();
+    std::vector<double*> getColumnLowerList();
+    std::vector<double*> getColumnUpperList();
+    std::vector<double*> getObjectiveList();
+    std::vector<double*> getRowLowerList();
+    std::vector<double*> getRowUpperList();
+    std::vector<double*> getRowObjectiveList();
+    std::vector<char*> getIntegerInformationList();
 };
 
 

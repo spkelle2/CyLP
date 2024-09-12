@@ -1,4 +1,5 @@
 cimport numpy as np
+from libcpp.vector cimport vector
 
 cdef extern from "ICbcNode.hpp":
     cdef cppclass CppICbcNode "ICbcNode":
@@ -9,6 +10,12 @@ cdef extern from "ICbcNode.hpp":
         bint onTree()
         double objectiveValue()
         bint breakTie(CppICbcNode* y)
+        int nodeMapLeafStatus()
+        vector[int] nodeMapLineage()
+        int nodeMapIndex()
+        int branchVariable()
+        int branchWay()
+        int lpFeasible()
 
 cdef class CyCbcNode:
     cdef CppICbcNode* CppSelf
